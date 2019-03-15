@@ -1,4 +1,5 @@
 const fees = require('./fees');
+const dpowCoins = require('./electrum-servers-dpow');
 
 // TODO: add a script to sync electrum severs list from https://github.com/jl777/coins/tree/master/electrums
 
@@ -22,6 +23,10 @@ let _electrumServers = {
   prlpay: [
     'electrum1.prlpay.com:9681:tcp',
     'electrum2.prlpay.com:9681:tcp',
+  ],
+  koin: [
+    'dalian.koinon.cloud:50001:tcp',
+    'sumba.koinon.cloud:50001:tcp',
   ],
   pgt: [
     'agama.komodo.build:10002:tcp',
@@ -89,6 +94,10 @@ let _electrumServers = {
     'electrum1.cipig.net:10009:tcp',
     'electrum2.cipig.net:10009:tcp',
   ],
+  iln: [
+    'electrum1.ilien.io:65011:tcp',
+    'electrum2.ilien.io:65011:tcp',
+  ],
   pangea: [
     'electrum1.cipig.net:10010:tcp',
     'electrum2.cipig.net:10010:tcp',
@@ -100,10 +109,6 @@ let _electrumServers = {
   mshark: [
     'electrum1.cipig.net:10013:tcp',
     'electrum2.cipig.net:10013:tcp',
-  ],
-  mnz: [
-    'electrum1.cipig.net:10002:tcp',
-    'electrum2.cipig.net:10002:tcp',
   ],
   wlc: [
     'electrum1.cipig.net:10014:tcp',
@@ -497,6 +502,14 @@ let _electrumServers = {
   uis: [
     '194.87.145.250:50040:ssl',
   ],
+  ksb: [
+    '51.158.74.137:50001:tcp',
+    'electrum.komodochainz.info:50041:tcp',
+  ],
+  our: [
+    '51.158.74.137:50002:tcp',
+    'electrum.komodochainz.info:50042:tcp',
+  ],
 };
 
 let electrumServers = {};
@@ -506,6 +519,10 @@ for (let key in _electrumServers) {
     txfee: fees[key] ? fees[key] : 0,
     serverList: _electrumServers[key],
   };
+
+  if (dpowCoins.indexOf(key.toUpperCase()) > -1) {
+    electrumServers[key].dpowConfs = true;
+  }
 }
 
 module.exports = electrumServers;

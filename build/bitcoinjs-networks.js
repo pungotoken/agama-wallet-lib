@@ -9,9 +9,16 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 */
 
 // TODO: runtime extend for kmd assets
+//       use lib flag e.g. lib: 'bitcoinjs-lib'
 // wifAlt can be used for different coin versions that underwent major code base changes
 // this is an experimental option that can lead to key pair derivation errors
 var bitcoin = require('bitcoinjs-lib');
+var bcrypto = require('bitgo-utxo-lib-groestl').crypto;
+
+var groestlHashFunctions = {
+  address: bcrypto.groestl,
+  transaction: bcrypto.sha256
+};
 
 var networks = (_networks = {
   btc: bitcoin.networks.bitcoin,
@@ -423,8 +430,16 @@ var networks = (_networks = {
     pubKeyHash: 0x1cb8,
     scriptHash: 0x1cbd,
     wif: 0x80,
+    consensusBranchId: {
+      1: 0x00,
+      2: 0x00,
+      3: 0x5ba81b19,
+      4: 0x76b809bb
+    },
     dustThreshold: 1000,
-    isZcash: true
+    isZcash: true,
+    sapling: true,
+    saplingActivationHeight: 476969
   },
   sng: {
     messagePrefix: '\x19Snowgem Signed Message:\n',
@@ -511,6 +526,7 @@ var networks = (_networks = {
   },
   grs: { // fails to gen a proper addr
     messagePrefix: '\x19Groestlcoin Signed Message:\n',
+    bech32: 'grs',
     bip44: 17,
     bip32: {
       public: 0x0488b21e,
@@ -519,7 +535,9 @@ var networks = (_networks = {
     pubKeyHash: 0x24,
     scriptHash: 0x5,
     wif: 0x80,
-    dustThreshold: 1000
+    dustThreshold: 1000,
+    isGRS: true,
+    hashFunctions: groestlHashFunctions
   },
   aby: {
     messagePrefix: '\x19ArtByte Signed Message:\n',
@@ -2131,6 +2149,15 @@ var networks = (_networks = {
   pubKeyHash: 0x3A,
   scriptHash: 0x78,
   wif: 0x1
+}), _defineProperty(_networks, 'gin', {
+  messagePrefix: '\x18GinCoin Signed Message:\n',
+  bip32: {
+    public: 0x0488b21e,
+    private: 0x0488ade4
+  },
+  pubKeyHash: 0x26,
+  scriptHash: 0xA,
+  wif: 0xC6
 }), _defineProperty(_networks, '2give', {
   messagePrefix: '\x182GIVE Signed Message:\n',
   pubKeyHash: 0x27,

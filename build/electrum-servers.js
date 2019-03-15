@@ -1,6 +1,7 @@
 'use strict';
 
 var fees = require('./fees');
+var dpowCoins = require('./electrum-servers-dpow');
 
 // TODO: add a script to sync electrum severs list from https://github.com/jl777/coins/tree/master/electrums
 
@@ -10,6 +11,7 @@ var _electrumServers = {
   ptx: ['electrum1.patenttx.com:18081:tcp', 'electrum2.patenttx.com:18081:tcp'],
   zilla: ['electrum1.cipig.net:10028:tcp', 'electrum2.cipig.net:10028:tcp'],
   prlpay: ['electrum1.prlpay.com:9681:tcp', 'electrum2.prlpay.com:9681:tcp'],
+  koin: ['dalian.koinon.cloud:50001:tcp', 'sumba.koinon.cloud:50001:tcp'],
   pgt: ['agama.komodo.build:10002:tcp', 'agama2.komodo.build:10002:tcp'],
   kv: ['electrum1.cipig.net:10016:tcp', 'electrum2.cipig.net:10016:tcp'],
   bntn: ['electrum1.cipig.net:10026:tcp', 'electrum2.cipig.net:10026:tcp'],
@@ -32,7 +34,6 @@ var _electrumServers = {
   pangea: ['electrum1.cipig.net:10010:tcp', 'electrum2.cipig.net:10010:tcp'],
   bet: ['electrum1.cipig.net:10012:tcp', 'electrum2.cipig.net:10012:tcp'],
   mshark: ['electrum1.cipig.net:10013:tcp', 'electrum2.cipig.net:10013:tcp'],
-  mnz: ['electrum1.cipig.net:10002:tcp', 'electrum2.cipig.net:10002:tcp'],
   wlc: ['electrum1.cipig.net:10014:tcp', 'electrum2.cipig.net:10014:tcp'],
   mgw: ['electrum1.cipig.net:10015:tcp', 'electrum2.cipig.net:10015:tcp'],
   btch: ['electrum1.cipig.net:10020:tcp', 'electrum2.cipig.net:10020:tcp'],
@@ -134,7 +135,9 @@ var _electrumServers = {
   aywa: ['electrum1.getaywa.org:50001:tcp', 'electrum2.getaywa.org:50001:tcp'],
   xbc: ['electrumx1.bitcoinplus.org:50001:tcp', 'electrumx2.bitcoinplus.org:50001:tcp'],
   bbk: ['194.87.145.250:50050:ssl'],
-  uis: ['194.87.145.250:50040:ssl']
+  uis: ['194.87.145.250:50040:ssl'],
+  ksb: ['51.158.74.137:50001:tcp', 'electrum.komodochainz.info:50041:tcp'],
+  our: ['51.158.74.137:50002:tcp', 'electrum.komodochainz.info:50042:tcp']
 };
 
 var electrumServers = {};
@@ -144,6 +147,10 @@ for (var key in _electrumServers) {
     txfee: fees[key] ? fees[key] : 0,
     serverList: _electrumServers[key]
   };
+
+  if (dpowCoins.indexOf(key.toUpperCase()) > -1) {
+    electrumServers[key].dpowConfs = true;
+  }
 }
 
 module.exports = electrumServers;

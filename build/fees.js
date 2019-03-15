@@ -33,7 +33,6 @@ var fees = {
   pgt: KMD_STD_FEE,
   bet: KMD_STD_FEE,
   mshark: KMD_STD_FEE,
-  mnz: KMD_STD_FEE,
   wlc: KMD_STD_FEE,
   mgw: KMD_STD_FEE,
   btch: KMD_STD_FEE,
@@ -49,6 +48,9 @@ var fees = {
   ptx: KMD_STD_FEE,
   spltest: KMD_STD_FEE,
   lumber: KMD_STD_FEE,
+  ksb: KMD_STD_FEE,
+  our: KMD_STD_FEE,
+  koin: KMD_STD_FEE,
   // ext. coins
   doge: 100000000,
   via: 100000,

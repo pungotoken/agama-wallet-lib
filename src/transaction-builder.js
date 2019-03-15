@@ -148,6 +148,7 @@ const transaction = (sendTo, changeAddress, wif, network, utxo, changeValue, spe
 // TODO: merge sendmany
 const data = (network, value, fee, outputAddress, changeAddress, utxoList) => {
   const btcFee = fee.perbyte ? fee.value : null; // TODO: coin non specific switch static/dynamic fee
+  const inputValue = value;
 
   if (btcFee) {
     fee = 0;
@@ -164,26 +165,22 @@ const data = (network, value, fee, outputAddress, changeAddress, utxoList) => {
     let utxoVerified = true;
 
     for (let i = 0; i < utxoList.length; i++) {
-      let _utxo;
+      let _utxo = {
+        txid: utxoList[i].txid,
+        vout: utxoList[i].vout,
+        value: Number(utxoList[i].amountSats || utxoList[i].value),
+        verified: utxoList[i].verified ? utxoList[i].verified : false,
+      };
 
       if (network.kmdInterest) {
-        _utxo = {
-          txid: utxoList[i].txid,
-          vout: utxoList[i].vout,
-          value: Number(utxoList[i].amountSats || utxoList[i].value),
-          interestSats: Number(utxoList[i].interestSats || utxoList[i].interest || 0),
-          verified: utxoList[i].verified ? utxoList[i].verified : false,
-        };
-      } else {
-        _utxo = {
-          txid: utxoList[i].txid,
-          vout: utxoList[i].vout,
-          value: Number(utxoList[i].amountSats || utxoList[i].value),
-          verified: utxoList[i].verified ? utxoList[i].verified : false,
-        };
+        _utxo.interestSats = Number(utxoList[i].interestSats || utxoList[i].interest || 0);
       }
 
-      if (utxoList[i].currentHeight) {
+      if (utxoList[i].hasOwnProperty('dpowSecured')) {
+        _utxo.dpowSecured = utxoList[i].dpowSecured;
+      }
+
+      if (utxoList[i].hasOwnProperty('currentHeight')) {
         _utxo.currentHeight = utxoList[i].currentHeight;
       }
 
@@ -191,6 +188,11 @@ const data = (network, value, fee, outputAddress, changeAddress, utxoList) => {
     }
 
     const _maxSpendBalance = Number(utils.maxSpendBalance(utxoListFormatted));
+    
+    if (value > _maxSpendBalance) {
+      return `Spend value is too large. Max available amount is ${Number(((_maxSpendBalance * 0.00000001).toFixed(8)))}`;
+    }
+  
     const targets = [{
       address: outputAddress,
       value: value > _maxSpendBalance ? _maxSpendBalance : value,
@@ -232,9 +234,14 @@ const data = (network, value, fee, outputAddress, changeAddress, utxoList) => {
 
     if (btcFee) {
       value = outputs[0].value;
-    } else if (_change > 0) {
+    } else if (_change >= 0) {
       value = outputs[0].value - fee;
     }
+    
+    if (outputs[0].value === value + fee) {
+      outputs[0].value === outputs[0].value - fee;
+      targets[0].value = targets[0].value - fee;
+    } 
 
     // check if any outputs are unverified
     if (inputs &&
@@ -254,17 +261,12 @@ const data = (network, value, fee, outputAddress, changeAddress, utxoList) => {
       }
     }
 
-    const _maxSpend = utils.maxSpendBalance(utxoListFormatted);
-
-    if (value > _maxSpend) {
-      return `Spend value is too large. Max available amount is ${Number(((_maxSpend * 0.00000001).toFixed(8)))}`;
-    }
     // account for KMD interest
     if (network.kmdInterest &&
         totalInterest > 0) {
       // account for extra vout
 
-      if ((_maxSpend - fee) === value) {
+      if ((_maxSpendBalance - fee) === value) {
         _change = totalInterest - _change;
 
         if (outputAddress === changeAddress) {
@@ -279,6 +281,11 @@ const data = (network, value, fee, outputAddress, changeAddress, utxoList) => {
       if (outputAddress === changeAddress &&
           _change > 0) {
         value += _change - fee;
+
+        if (Math.abs(value - inputValue) > fee) {
+          value += fee;
+        }
+
         _change = 0;
       }
     }
@@ -293,7 +300,13 @@ const data = (network, value, fee, outputAddress, changeAddress, utxoList) => {
       vinSum += inputs[i].value;
     }
 
-    const _estimatedFee = vinSum - outputs[0].value - _change;
+    let voutSum = 0;
+    
+    for (let i = 0; i < outputs.length; i++) {
+      voutSum += outputs[i].value;
+    }
+
+    const _estimatedFee = vinSum - voutSum - totalInterest;
 
     // double check no extra fee is applied
     if ((vinSum - value - _change) > fee) {
@@ -314,6 +327,7 @@ const data = (network, value, fee, outputAddress, changeAddress, utxoList) => {
       network,
       change: _change,
       value,
+      inputValue,
       inputs,
       outputs,
       targets,
