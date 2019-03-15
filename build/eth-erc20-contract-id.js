@@ -169,7 +169,10 @@ var erc20ContractId = {
   FYN: '0x88FCFBc22C6d3dBaa25aF478C578978339BDe77a',
   JST: '0x996a8ae0304680f6a69b8a9d7c6e37d65ab5ab56',
   DEC8: '0x3ab100442484dc2414aa75b2952a0a6f03f8abfd',
-  ZIL: '0x05f4a42e251f2d52b8ed15e9fedaacfcef1fad27'
+  ZIL: '0x05f4a42e251f2d52b8ed15e9fedaacfcef1fad27',
+  DGX: '0x4f3afec4e5a3f2a6a1a411def7d7dfe50ee057bf',
+  XAUR: '0x4DF812F6064def1e5e029f1ca858777CC98D2D81'
+
 };
 
 module.exports = erc20ContractId;
