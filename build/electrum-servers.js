@@ -109,8 +109,6 @@ let _electrumServers = {
         's2.qtum.info:50001:tcp',
     ],
     kmd: [
-        'electrum1.pungo.cloud:10001:tcp',
-        'electrum2.pungo.cloud:10001:tcp',
         'electrum1.cipig.net:10001:tcp',
         'electrum2.cipig.net:10001:tcp',
     ],
